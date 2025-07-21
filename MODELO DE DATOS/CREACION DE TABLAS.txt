@@ -1,0 +1,143 @@
+--Crear Tablas
+
+CREATE TABLE G4.categoria (
+    id_categoria VARCHAR(6) PRIMARY KEY,
+    cat_nombre VARCHAR(50)
+);
+
+CREATE TABLE G4.marca (
+    id_marca VARCHAR(6) PRIMARY KEY,
+    mar_nombre VARCHAR(50)
+);
+
+CREATE TABLE G4.canal (
+    id_canal VARCHAR(6) PRIMARY KEY,
+    ca_nombre VARCHAR(50)
+);
+
+CREATE TABLE G4.unidad_medida (
+    id_unidad VARCHAR(6) PRIMARY KEY,
+    uni_nombre VARCHAR(20),
+    abreviatura VARCHAR(10)
+);
+
+CREATE TABLE G4.proveedor (
+    id_prov VARCHAR(7) PRIMARY KEY,
+    prov_nombre VARCHAR(100),
+    email VARCHAR(100),
+    direccion VARCHAR(255),
+    telefono VARCHAR(20)
+);
+
+CREATE TABLE G4.producto (
+    id_prod VARCHAR(7) PRIMARY KEY,
+    prod_nombre VARCHAR(100),
+    prod_descrip VARCHAR(350),
+    stock INT,
+    precio DECIMAL(10, 2),
+    id_categoria VARCHAR(6),
+    id_marca VARCHAR(6),
+    id_prov VARCHAR(7),
+    id_unidad VARCHAR(6),
+    FOREIGN KEY (id_categoria) REFERENCES G4.categoria(id_categoria),
+    FOREIGN KEY (id_marca) REFERENCES G4.marca(id_marca),
+    FOREIGN KEY (id_prov) REFERENCES G4.proveedor(id_prov),
+    FOREIGN KEY (id_unidad) REFERENCES G4.unidad_medida(id_unidad)
+);
+
+CREATE TABLE G4.usuario (
+    id_usuario VARCHAR(7) PRIMARY KEY,
+    u_nombre VARCHAR(100),
+    u_apellido VARCHAR(100),
+    genero CHAR(1),
+    dni VARCHAR(10) UNIQUE,
+    telefono VARCHAR(20),
+    email VARCHAR(100),
+    fecha_registro DATETIME,
+    fecha_nacimiento DATETIME,
+    estado_civil VARCHAR(20),
+    cargo VARCHAR(50),
+    login VARCHAR(50) UNIQUE,
+    clave VARCHAR(50),
+    perfil VARCHAR(50),
+    id_canal VARCHAR(6),
+    FOREIGN KEY (id_canal) REFERENCES G4.canal(id_canal)
+);
+
+CREATE TABLE G4.direccion (
+    id_direccion VARCHAR(7) PRIMARY KEY,
+    id_usuario VARCHAR(7) NOT NULL,
+    dir_descrip VARCHAR(255),
+    distrito VARCHAR(50),
+    provincia VARCHAR(50),
+    departamento VARCHAR(50),
+    ubigeo VARCHAR(6),
+    FOREIGN KEY (id_usuario) REFERENCES G4.usuario(id_usuario)
+);
+
+CREATE TABLE G4.visita (
+    id_visita INT PRIMARY KEY,
+    panelweb_visita VARCHAR(200),
+    fecha_visita DATETIME,
+    id_usuario VARCHAR(7),
+    FOREIGN KEY (id_usuario) REFERENCES G4.usuario(id_usuario)
+);
+
+CREATE TABLE G4.carrito (
+    id_carrito INT PRIMARY KEY,
+    id_usuario VARCHAR(7) NOT NULL,
+    fecha_carrito DATETIME,
+    estado VARCHAR(20),
+    FOREIGN KEY (id_usuario) REFERENCES G4.usuario(id_usuario)
+);
+
+CREATE TABLE G4.detalle_carrito (
+    id_carrito INT,
+    id_prod VARCHAR(7),
+    cantidad INT,
+    precio DECIMAL(10, 2),
+    PRIMARY KEY (id_carrito, id_prod),
+    FOREIGN KEY (id_carrito) REFERENCES G4.carrito(id_carrito),
+    FOREIGN KEY (id_prod) REFERENCES G4.producto(id_prod)
+);
+
+CREATE TABLE G4.venta (
+    id_venta INT PRIMARY KEY,
+    id_usuario VARCHAR(7) NOT NULL,
+    fecha_venta DATETIME,
+    total DECIMAL(10, 2),
+    FOREIGN KEY (id_usuario) REFERENCES G4.usuario(id_usuario)
+);
+
+CREATE TABLE G4.detalle_venta (
+    id_venta INT,
+    id_prod VARCHAR(7),
+    cantidad INT,
+    precio_unitario DECIMAL(10, 2),
+    PRIMARY KEY (id_venta, id_prod),
+    FOREIGN KEY (id_venta) REFERENCES G4.venta(id_venta),
+    FOREIGN KEY (id_prod) REFERENCES G4.producto(id_prod)
+);
+
+CREATE TABLE G4.pago (
+    id_pago INT PRIMARY KEY,
+    medio_pago VARCHAR(50),
+    monto_pagado DECIMAL(10, 2),
+    fecha_pago DATETIME,
+    estado_pago VARCHAR(20),
+    id_venta INT NOT NULL,
+    FOREIGN KEY (id_venta) REFERENCES G4.venta(id_venta)
+);
+
+CREATE TABLE G4.envio (
+    id_envio INT PRIMARY KEY,
+    id_venta INT NOT NULL,
+    id_direccion VARCHAR(7) NOT NULL,
+    fecha_envio DATETIME,
+    fecha_entrega_estimada DATETIME,
+    fecha_entrega_real DATETIME,
+    estado VARCHAR(20),
+    costo_envio DECIMAL(10, 2),
+    FOREIGN KEY (id_venta) REFERENCES G4.venta(id_venta),
+    FOREIGN KEY (id_direccion) REFERENCES G4.direccion(id_direccion)
+);
